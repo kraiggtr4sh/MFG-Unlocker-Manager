@@ -18,16 +18,9 @@ public partial class App : Application
         };
     }
 
-    protected override void OnStartup(StartupEventArgs e)
-    {
-        base.OnStartup(e);
-        ApplyWin11BlueAccent(ApplicationTheme.Dark);
-    }
-
     public static void ApplyWin11BlueAccent(ApplicationTheme theme)
     {
         ApplicationThemeManager.Apply(theme, updateAccent: false);
-        ApplicationAccentColorManager.Apply(Win11Blue, theme);
 
         if (Current?.Resources != null)
         {

@@ -16,10 +16,12 @@ public partial class MainWindow : FluentWindow
 
         Loaded += async (_, _) =>
         {
-            App.ApplyWin11BlueAccent(
+            Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(
+                App.Win11Blue,
                 ViewModel.SettingsIsDarkTheme
                     ? Wpf.Ui.Appearance.ApplicationTheme.Dark
                     : Wpf.Ui.Appearance.ApplicationTheme.Light);
+
             await ViewModel.InitializeAsync();
         };
     }

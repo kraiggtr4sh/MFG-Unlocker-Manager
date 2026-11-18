@@ -80,39 +80,40 @@
                         DockPanel.Dock="Top"
                         Background="Transparent"
                         BorderThickness="0"
+                        ItemContainerStyle="{StaticResource RoundedNavListBoxItemStyle}"
                         SelectedIndex="{Binding SelectedNavIndex, Mode=TwoWay}">
                         <ListBoxItem>
                             <StackPanel Orientation="Horizontal">
-                                <ui:SymbolIcon Margin="0,0,12,0" Symbol="Home24" />
-                                <TextBlock VerticalAlignment="Center" FontSize="14" Text="{Binding Loc.NavHome}" />
+                                <ui:SymbolIcon Margin="0,0,12,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Symbol="Home24" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding Loc.NavHome}" />
                             </StackPanel>
                         </ListBoxItem>
 
                         <ListBoxItem>
                             <StackPanel Orientation="Horizontal">
-                                <ui:SymbolIcon Margin="0,0,12,0" Symbol="Games24" />
-                                <TextBlock VerticalAlignment="Center" FontSize="14" Text="{Binding Loc.NavGames}" />
+                                <ui:SymbolIcon Margin="0,0,12,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Symbol="Games24" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding Loc.NavGames}" />
                             </StackPanel>
                         </ListBoxItem>
 
                         <ListBoxItem>
                             <StackPanel Orientation="Horizontal">
-                                <ui:SymbolIcon Margin="0,0,12,0" Symbol="Table24" />
-                                <TextBlock VerticalAlignment="Center" FontSize="14" Text="{Binding Loc.NavCompatibility}" />
+                                <ui:SymbolIcon Margin="0,0,12,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Symbol="Table24" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding Loc.NavCompatibility}" />
                             </StackPanel>
                         </ListBoxItem>
 
                         <ListBoxItem>
                             <StackPanel Orientation="Horizontal">
-                                <ui:SymbolIcon Margin="0,0,12,0" Symbol="CloudArrowDown24" />
-                                <TextBlock VerticalAlignment="Center" FontSize="14" Text="{Binding Loc.NavReleases}" />
+                                <ui:SymbolIcon Margin="0,0,12,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Symbol="CloudArrowDown24" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding Loc.NavReleases}" />
                             </StackPanel>
                         </ListBoxItem>
 
                         <ListBoxItem>
                             <StackPanel Orientation="Horizontal">
-                                <ui:SymbolIcon Margin="0,0,12,0" Symbol="Settings24" />
-                                <TextBlock VerticalAlignment="Center" FontSize="14" Text="{Binding Loc.NavSettings}" />
+                                <ui:SymbolIcon Margin="0,0,12,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Symbol="Settings24" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding Loc.NavSettings}" />
                             </StackPanel>
                         </ListBoxItem>
                     </ListBox>
