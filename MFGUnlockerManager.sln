@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B2873B38-0A80-434B-918C-D629B55F05C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFGUnlockerManager", "src\MFGUnlockerManager\MFGUnlockerManager.csproj", "{18059EC0-0E54-4822-B712-C076D1EA5E2B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{CE67882E-4BC7-415A-81A4-86E690F5C988}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFGUnlockerManager.Tests", "tests\MFGUnlockerManager.Tests\MFGUnlockerManager.Tests.csproj", "{EFB6506F-43E5-4131-9E2E-FEF7E4DD74C1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{18059EC0-0E54-4822-B712-C076D1EA5E2B}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{18059EC0-0E54-4822-B712-C076D1EA5E2B}.Debug|Any CPU.Build.0 = Debug|x64
+		{18059EC0-0E54-4822-B712-C076D1EA5E2B}.Release|Any CPU.ActiveCfg = Release|x64
+		{18059EC0-0E54-4822-B712-C076D1EA5E2B}.Release|Any CPU.Build.0 = Release|x64
+		{EFB6506F-43E5-4131-9E2E-FEF7E4DD74C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFB6506F-43E5-4131-9E2E-FEF7E4DD74C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFB6506F-43E5-4131-9E2E-FEF7E4DD74C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFB6506F-43E5-4131-9E2E-FEF7E4DD74C1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{18059EC0-0E54-4822-B712-C076D1EA5E2B} = {B2873B38-0A80-434B-918C-D629B55F05C8}
+		{EFB6506F-43E5-4131-9E2E-FEF7E4DD74C1} = {CE67882E-4BC7-415A-81A4-86E690F5C988}
+	EndGlobalSection
+EndGlobal

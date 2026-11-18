@@ -1,0 +1,1141 @@
+<ui:FluentWindow
+    x:Class="MFGUnlockerManager.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:vm="clr-namespace:MFGUnlockerManager.ViewModels"
+    Title="Universal MFG Unlocker Manager"
+    Width="1220"
+    Height="820"
+    MinWidth="960"
+    MinHeight="640"
+    AllowDrop="True"
+    Drop="Window_Drop"
+    DragOver="Window_DragOver"
+    ExtendsContentIntoTitleBar="True"
+    FontFamily="{StaticResource SystemUiFont}"
+    WindowBackdropType="Mica"
+    WindowCornerPreference="Round"
+    WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Windows 11 TitleBar -->
+        <ui:TitleBar
+            Grid.Row="0"
+            Title="Universal MFG Unlocker Manager · Windows 11 Edition"
+            ShowMaximize="True"
+            ShowMinimize="True">
+            <ui:TitleBar.Icon>
+                <ui:SymbolIcon Symbol="DeveloperBoard24" />
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
+
+        <!-- Main Layout: Left Windows 11 Navigation Rail + Right Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Navigation Rail -->
+            <Border
+                Grid.Column="0"
+                Margin="12,4,0,12"
+                Padding="12"
+                Background="{DynamicResource ControlFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="12">
+                <DockPanel LastChildFill="False">
+                    <!-- Brand Header -->
+                    <StackPanel DockPanel.Dock="Top" Margin="8,6,8,14">
+                        <TextBlock
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Text="MFG Unlocker" />
+                        <TextBlock
+                            Margin="0,2,0,0"
+                            FontSize="12"
+                            Opacity="0.7"
+                            Text="DLSS MFG · XeMFG · DLSS 5" />
+                    </StackPanel>
+
+                    <!-- Primary CTA Button -->
+                    <ui:Button
+                        DockPanel.Dock="Top"
+                        Margin="4,0,4,12"
+                        HorizontalAlignment="Stretch"
+                        Style="{StaticResource BlueButton}"
+                        Command="{Binding OpenNewInstallWizardCommand}"
+                        Content="{Binding Loc.BtnInstallNewGame}"
+                        Icon="{ui:SymbolIcon Add24}" />
+
+                    <!-- Navigation ListBox styled like Windows 11 NavigationView -->
+                    <ListBox
+                        DockPanel.Dock="Top"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        SelectedIndex="{Binding SelectedNavIndex, Mode=TwoWay}">
+                        <ListBoxItem>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Margin="0,0,12,0" Symbol="Home24" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" Text="{Binding Loc.NavHome}" />
+                            </StackPanel>
+                        </ListBoxItem>
+
+                        <ListBoxItem>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Margin="0,0,12,0" Symbol="Games24" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" Text="{Binding Loc.NavGames}" />
+                            </StackPanel>
+                        </ListBoxItem>
+
+                        <ListBoxItem>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Margin="0,0,12,0" Symbol="Table24" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" Text="{Binding Loc.NavCompatibility}" />
+                            </StackPanel>
+                        </ListBoxItem>
+
+                        <ListBoxItem>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Margin="0,0,12,0" Symbol="CloudArrowDown24" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" Text="{Binding Loc.NavReleases}" />
+                            </StackPanel>
+                        </ListBoxItem>
+
+                        <ListBoxItem>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Margin="0,0,12,0" Symbol="Settings24" />
+                                <TextBlock VerticalAlignment="Center" FontSize="14" Text="{Binding Loc.NavSettings}" />
+                            </StackPanel>
+                        </ListBoxItem>
+                    </ListBox>
+
+                    <!-- Bottom Active Release Pill -->
+                    <Border
+                        DockPanel.Dock="Bottom"
+                        Padding="12,10"
+                        Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                        CornerRadius="10">
+                        <StackPanel>
+                            <TextBlock
+                                FontSize="11"
+                                Opacity="0.7"
+                                Text="{Binding Loc.ActiveCachedHeader}" />
+                            <TextBlock
+                                Margin="0,2,0,0"
+                                FontSize="13"
+                                FontWeight="SemiBold"
+                                Text="{Binding ActiveCachedRelease.TagName, TargetNullValue='Not Cached'}" />
+                        </StackPanel>
+                    </Border>
+                </DockPanel>
+            </Border>
+
+            <!-- Right Main Content Area -->
+            <Grid Grid.Column="1" Margin="16,4,16,12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Top InfoBar Notification (Wrapped in rounded container) -->
+                <Border
+                    Grid.Row="0"
+                    Margin="0,0,0,10"
+                    CornerRadius="10"
+                    ClipToBounds="True"
+                    Visibility="{Binding IsStatusOpen, Converter={StaticResource BoolToVis}}">
+                    <ui:InfoBar
+                        IsClosable="True"
+                        IsOpen="{Binding IsStatusOpen, Mode=TwoWay}"
+                        Message="{Binding StatusMessage}"
+                        Severity="Informational"
+                        Title="{Binding StatusTitle}" />
+                </Border>
+
+                <!-- Download & Verification Progress Panel -->
+                <Border
+                    Grid.Row="1"
+                    Margin="0,0,0,10"
+                    Padding="12,10"
+                    Background="{DynamicResource ControlFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,6"
+                            FontSize="12"
+                            Text="{Binding DownloadStatusText}" />
+                        <ProgressBar
+                            Height="6"
+                            Maximum="100"
+                            Minimum="0"
+                            Value="{Binding DownloadProgress}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- ==================== PAGE 0: HOME ==================== -->
+                <ScrollViewer
+                    Grid.Row="2"
+                    VerticalScrollBarVisibility="Auto"
+                    Visibility="{Binding SelectedNavIndex, Converter={StaticResource NavToVis}, ConverterParameter=0}">
+                    <StackPanel>
+                        <TextBlock
+                            FontSize="24"
+                            FontWeight="SemiBold"
+                            Text="{Binding Loc.HomeTitle}" />
+                        <TextBlock
+                            Margin="0,4,0,16"
+                            FontSize="13"
+                            Opacity="0.75"
+                            Text="{Binding Loc.HomeSubtitle}"
+                            TextWrapping="Wrap" />
+
+                        <!-- 3 Summary Cards -->
+                        <UniformGrid Columns="3" Margin="0,0,0,16">
+                            <!-- Card 1: Latest GitHub Release -->
+                            <ui:Card Margin="0,0,8,0" Padding="16" VerticalAlignment="Stretch">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Margin="0,0,8,0" Symbol="Cloud24" />
+                                        <TextBlock FontSize="12" Opacity="0.75" Text="{Binding Loc.LatestReleaseHeader}" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Margin="0,8,0,2"
+                                        FontSize="22"
+                                        FontWeight="Bold"
+                                        Text="{Binding LatestRelease.TagName, TargetNullValue='v1.7.1'}" />
+                                    <TextBlock
+                                        FontSize="12"
+                                        Opacity="0.7"
+                                        Text="{Binding LatestRelease.FormattedDate, TargetNullValue='dashdogy/MFG-Unlocker'}" />
+                                    <WrapPanel Margin="0,12,0,0">
+                                        <ui:Button
+                                            Margin="0,0,6,6"
+                                            Style="{StaticResource BlueButton}"
+                                            Command="{Binding DownloadLatestReleaseCommand}"
+                                            Content="{Binding Loc.BtnDownloadLatest}"
+                                            Icon="{ui:SymbolIcon ArrowDownload24}" />
+                                        <ui:Button
+                                            Margin="0,0,0,6"
+                                            Command="{Binding CheckForUpdatesCommand}"
+                                            Content="{Binding Loc.BtnCheckUpdate}"
+                                            Icon="{ui:SymbolIcon ArrowSync24}" />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </ui:Card>
+
+                            <!-- Card 2: Cached Local DLL -->
+                            <ui:Card Margin="4,0,4,0" Padding="16" VerticalAlignment="Stretch">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Margin="0,0,8,0" Symbol="ShieldCheckmark24" />
+                                        <TextBlock FontSize="12" Opacity="0.75" Text="{Binding Loc.ActiveCachedHeader}" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Margin="0,8,0,2"
+                                        FontSize="22"
+                                        FontWeight="Bold"
+                                        Text="{Binding ActiveCachedRelease.TagName, TargetNullValue='Not Cached'}" />
+                                    <TextBlock
+                                        FontSize="11"
+                                        Opacity="0.65"
+                                        Text="{Binding ActiveCachedRelease.DllSha256, StringFormat='SHA-256: {0}', TargetNullValue='Click Download &amp; Verify SHA-256 to cache locally'}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <WrapPanel Margin="0,12,0,0">
+                                        <ui:Button
+                                            Command="{Binding OpenCacheDirectoryCommand}"
+                                            Content="Open DLL Cache Folder"
+                                            Icon="{ui:SymbolIcon FolderOpen24}" />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </ui:Card>
+
+                            <!-- Card 3: Installed Games -->
+                            <ui:Card Margin="8,0,0,0" Padding="16" VerticalAlignment="Stretch">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Margin="0,0,8,0" Symbol="Games24" />
+                                        <TextBlock FontSize="12" Opacity="0.75" Text="{Binding Loc.InstalledGamesCountHeader}" />
+                                    </StackPanel>
+                                    <TextBlock
+                                        Margin="0,8,0,2"
+                                        FontSize="22"
+                                        FontWeight="Bold"
+                                        Text="{Binding InstalledGames.Count}" />
+                                    <TextBlock
+                                        FontSize="12"
+                                        Opacity="0.7"
+                                        Text="{Binding OutdatedGamesCount, StringFormat='Outdated Games: {0}'}" />
+                                    <WrapPanel Margin="0,12,0,0">
+                                        <ui:Button
+                                            Margin="0,0,6,6"
+                                            Style="{StaticResource BlueButton}"
+                                            Command="{Binding OpenNewInstallWizardCommand}"
+                                            Content="{Binding Loc.BtnInstallNewGame}"
+                                            Icon="{ui:SymbolIcon Add24}" />
+                                        <ui:Button
+                                            Margin="0,0,0,6"
+                                            Command="{Binding UpdateAllOutdatedGamesCommand}"
+                                            Content="{Binding Loc.BtnUpdateAllGames}"
+                                            Icon="{ui:SymbolIcon ArrowUp24}" />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </ui:Card>
+                        </UniformGrid>
+
+                        <!-- Quick Guide & Release Notes Card -->
+                        <ui:Card Padding="18" Margin="0,0,0,12">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,10">
+                                    <ui:Button
+                                        DockPanel.Dock="Right"
+                                        Margin="12,0,0,0"
+                                        Command="{Binding OpenGitHubRepoCommand}"
+                                        Content="GitHub Releases"
+                                        Icon="{ui:SymbolIcon Open24}" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="{Binding LatestRelease.Name, TargetNullValue='Universal MFG Unlocker - Release Notes'}"
+                                        TextWrapping="Wrap" />
+                                </DockPanel>
+
+                                <Border
+                                    Padding="12"
+                                    Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10">
+                                    <TextBox
+                                        MaxHeight="340"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        FontFamily="Consolas, Segoe UI Variable Text, Segoe UI"
+                                        FontSize="12.5"
+                                        IsReadOnly="True"
+                                        Text="{Binding LatestRelease.Body, Mode=OneWay, TargetNullValue='Click Check for Updates to load release notes from GitHub...'}"
+                                        TextWrapping="Wrap"
+                                        VerticalScrollBarVisibility="Auto" />
+                                </Border>
+                            </StackPanel>
+                        </ui:Card>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ==================== PAGE 1: GAMES & INSTALL WIZARD ==================== -->
+                <ScrollViewer
+                    Grid.Row="2"
+                    VerticalScrollBarVisibility="Auto"
+                    Visibility="{Binding SelectedNavIndex, Converter={StaticResource NavToVis}, ConverterParameter=1}">
+                    <StackPanel>
+                        <StackPanel Margin="0,0,0,14">
+                            <TextBlock
+                                FontSize="24"
+                                FontWeight="SemiBold"
+                                Text="{Binding Loc.NavGames}" />
+                            <TextBlock
+                                Margin="0,4,0,10"
+                                FontSize="12.5"
+                                Opacity="0.7"
+                                Text="Drag &amp; drop a game .exe (or library folder) onto this window, browse manually, or auto-scan Steam / Epic / Xbox / GOG / standalone &amp; repack games"
+                                TextWrapping="Wrap" />
+
+                            <WrapPanel VerticalAlignment="Center">
+                                <ui:Button
+                                    Margin="0,0,8,6"
+                                    Style="{StaticResource BlueButton}"
+                                    Command="{Binding BrowseGameExecutableCommand}"
+                                    Content="{Binding Loc.BtnBrowseExe}"
+                                    Icon="{ui:SymbolIcon FolderOpen24}" />
+                                <ui:Button
+                                    Margin="0,0,8,6"
+                                    Style="{StaticResource BlueButton}"
+                                    Command="{Binding ScanInstalledPlatformGamesCommand}"
+                                    Content="{Binding Loc.BtnAutoScanGames}"
+                                    Icon="{ui:SymbolIcon Search24}" />
+                                <ui:Button
+                                    Margin="0,0,8,6"
+                                    Command="{Binding UpdateAllOutdatedGamesCommand}"
+                                    Content="{Binding Loc.BtnUpdateAllGames}"
+                                    Icon="{ui:SymbolIcon ArrowUp24}" />
+                                <ui:Button
+                                    Margin="0,0,0,6"
+                                    Command="{Binding RefreshLocalStateCommand}"
+                                    Content="Refresh"
+                                    Icon="{ui:SymbolIcon ArrowSync24}"
+                                    ToolTip="Refresh game status" />
+                            </WrapPanel>
+                        </StackPanel>
+
+                        <!-- SCAN SOURCES + PROGRESS -->
+                        <Border
+                            Margin="0,0,0,14"
+                            Padding="14,10"
+                            Background="{DynamicResource ControlFillColorDefaultBrush}"
+                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12">
+                            <StackPanel>
+                                <WrapPanel VerticalAlignment="Center">
+                                    <TextBlock
+                                        Margin="0,0,12,0"
+                                        VerticalAlignment="Center"
+                                        FontWeight="SemiBold"
+                                        Text="Scan Sources:" />
+                                    <CheckBox Margin="0,0,14,0" Content="Steam" IsChecked="{Binding ScanSteam}" />
+                                    <CheckBox Margin="0,0,14,0" Content="Epic" IsChecked="{Binding ScanEpic}" />
+                                    <CheckBox Margin="0,0,14,0" Content="Xbox / Game Pass" IsChecked="{Binding ScanXbox}" />
+                                    <CheckBox Margin="0,0,14,0" Content="GOG" IsChecked="{Binding ScanGog}" />
+                                    <CheckBox
+                                        Margin="0,0,14,0"
+                                        Content="Standalone / Cracked / Repack Games"
+                                        IsChecked="{Binding ScanOtherGames}"
+                                        ToolTip="Scans custom folders added in Settings, X:\Games, and installed games (automatically filters out desktop apps, esports &amp; anti-cheat titles)" />
+                                    <ui:Button
+                                        Margin="0,0,8,0"
+                                        Command="{Binding AddCustomLibraryFolderCommand}"
+                                        Content="Add Game Folder..."
+                                        Icon="{ui:SymbolIcon FolderAdd24}" />
+                                    <ui:Button
+                                        Command="{Binding CancelScanCommand}"
+                                        Content="Cancel Scan"
+                                        Icon="{ui:SymbolIcon Dismiss24}"
+                                        Visibility="{Binding IsScanning, Converter={StaticResource BoolToVis}}" />
+                                </WrapPanel>
+                                <StackPanel Margin="0,8,0,0" Visibility="{Binding IsScanning, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock
+                                        Margin="0,0,0,4"
+                                        FontSize="12"
+                                        Opacity="0.8"
+                                        Text="{Binding ScanProgressText}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <ProgressBar Height="4" IsIndeterminate="True" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- INSTALL WIZARD PANEL -->
+                        <ui:Card
+                            Margin="0,0,0,16"
+                            Padding="18"
+                            Visibility="{Binding IsInstallWizardVisible, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <ui:Button
+                                        DockPanel.Dock="Right"
+                                        Margin="12,0,0,0"
+                                        Command="{Binding CloseInstallWizardCommand}"
+                                        Content="Close" />
+                                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                        <ui:SymbolIcon Margin="0,0,8,0" Symbol="Wand24" />
+                                        <TextBlock
+                                            FontSize="17"
+                                            FontWeight="SemiBold"
+                                            Text="MFG Unlocker Install &amp; Configuration Wizard"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </DockPanel>
+
+                                <!-- Step 1: Game Exe & Name -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="3*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                        <TextBlock Margin="0,0,0,4" FontSize="12" Opacity="0.8" Text="Game Title" />
+                                        <ui:TextBox Text="{Binding WizardGameName, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                        <TextBlock Margin="0,0,0,4" FontSize="12" Opacity="0.8" Text="Actual Game Executable Path (not the launcher)" />
+                                        <ui:TextBox Text="{Binding WizardExecutablePath, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <ui:Button
+                                        Grid.Column="2"
+                                        VerticalAlignment="Bottom"
+                                        Command="{Binding BrowseGameExecutableCommand}"
+                                        Content="Browse .exe..."
+                                        Icon="{ui:SymbolIcon Folder24}" />
+                                </Grid>
+
+                                <!-- Unreal / Launcher Suggestion Alert -->
+                                <Border
+                                    Margin="0,0,0,10"
+                                    Padding="12,8"
+                                    Background="#33F59E0B"
+                                    CornerRadius="10"
+                                    Visibility="{Binding WizardSuggestedRealExePath, Converter={StaticResource StrToVis}}">
+                                    <DockPanel>
+                                        <ui:Button
+                                            DockPanel.Dock="Right"
+                                            Margin="12,0,0,0"
+                                            Style="{StaticResource BlueButton}"
+                                            Command="{Binding ApplySuggestedRealExecutableCommand}"
+                                            Content="Switch to Real Game .exe" />
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Text="{Binding WizardSuggestedRealExePath, StringFormat='⚠ Detected actual game binary at: {0}'}"
+                                            TextWrapping="Wrap" />
+                                    </DockPanel>
+                                </Border>
+
+                                <!-- Anti-Cheat Warning -->
+                                <Border
+                                    Margin="0,0,0,10"
+                                    Padding="12,8"
+                                    Background="#330067C0"
+                                    CornerRadius="10"
+                                    Visibility="{Binding WizardHasAntiCheatWarning, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock
+                                        FontWeight="SemiBold"
+                                        Text="⚠ ANTI-CHEAT WARNING: EasyAntiCheat / BattlEye or an anti-cheat protected game was detected! MFG Unlocker is NOT supported in games with anti-cheat."
+                                        TextWrapping="Wrap" />
+                                </Border>
+
+                                <!-- Matched Compatibility Banner -->
+                                <Border
+                                    Margin="0,0,0,12"
+                                    Padding="12,8"
+                                    Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                    CornerRadius="10"
+                                    Visibility="{Binding WizardMatchedCompatInfo, Converter={StaticResource StrToVis}}">
+                                    <TextBlock
+                                        FontWeight="SemiBold"
+                                        Text="{Binding WizardMatchedCompatInfo}"
+                                        TextWrapping="Wrap" />
+                                </Border>
+
+                                <!-- Step 2: Install Mode -->
+                                <TextBlock
+                                    Margin="0,0,0,6"
+                                    FontSize="13"
+                                    FontWeight="SemiBold"
+                                    Text="Installation Mode:" />
+                                <WrapPanel Margin="0,0,0,12">
+                                    <RadioButton
+                                        Margin="0,0,20,4"
+                                        Content="Standalone Proxy DLL (version.dll, winmm.dll, ...)"
+                                        GroupName="InstallModeGroup"
+                                        IsChecked="{Binding WizardSelectedMode, Converter={StaticResource ModeBool}, ConverterParameter=StandaloneProxy}" />
+                                    <RadioButton
+                                        Margin="0,0,0,4"
+                                        Content="OptiScaler Plugin (OptiScaler\plugins\MFGUnlocker.asi + auto-enable LoadAsiPlugins)"
+                                        GroupName="InstallModeGroup"
+                                        IsChecked="{Binding WizardSelectedMode, Converter={StaticResource ModeBool}, ConverterParameter=OptiScalerPlugin}" />
+                                </WrapPanel>
+
+                                <!-- Step 3: Proxy Filename Selector -->
+                                <TextBlock
+                                    Margin="0,0,0,6"
+                                    FontSize="13"
+                                    FontWeight="SemiBold"
+                                    Text="Select Proxy DLL Filename (Auto-sorted by Compatibility Table &amp; file conflict check):" />
+
+                                <ListBox
+                                    MaxHeight="210"
+                                    Margin="0,0,0,12"
+                                    ItemsSource="{Binding WizardProxyCandidates}"
+                                    SelectedItem="{Binding WizardSelectedCandidate, Mode=TwoWay}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="4,2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150" />
+                                                    <ColumnDefinition Width="210" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock
+                                                    Grid.Column="0"
+                                                    FontFamily="Consolas"
+                                                    FontSize="13.5"
+                                                    FontWeight="Bold"
+                                                    Text="{Binding FileName}" />
+                                                <TextBlock
+                                                    Grid.Column="1"
+                                                    FontSize="12"
+                                                    FontWeight="SemiBold"
+                                                    Opacity="0.9"
+                                                    Text="{Binding BadgeText}" />
+                                                <TextBlock
+                                                    Grid.Column="2"
+                                                    FontSize="12"
+                                                    Opacity="0.7"
+                                                    Text="{Binding Description}"
+                                                    TextTrimming="CharacterEllipsis" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <!-- Confirm Install Button -->
+                                <DockPanel>
+                                    <ui:Button
+                                        DockPanel.Dock="Right"
+                                        Margin="12,0,0,0"
+                                        Style="{StaticResource BlueButton}"
+                                        Command="{Binding ConfirmWizardInstallCommand}"
+                                        Content="Install / Apply MFG Unlocker Now"
+                                        Icon="{ui:SymbolIcon CheckmarkCircle24}" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Opacity="0.75"
+                                        Text="After installing: Launch the game, enable Frame Generation, and press Backspace to open the menu."
+                                        TextWrapping="Wrap" />
+                                </DockPanel>
+                            </StackPanel>
+                        </ui:Card>
+
+                        <!-- DISCOVERED PLATFORM GAMES (Steam / Epic / Xbox / Standalone) -->
+                        <ui:CardExpander
+                            Margin="0,0,0,14"
+                            Icon="{ui:SymbolIcon Search24}"
+                            IsExpanded="True">
+                            <ui:CardExpander.Header>
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    FontSize="14"
+                                    FontWeight="SemiBold"
+                                    Text="{Binding DiscoveredGames.Count, StringFormat='Discovered Games ({0}) — Games tagged DLSS FG ✓ are prioritized at the top'}"
+                                    TextWrapping="Wrap" />
+                            </ui:CardExpander.Header>
+                            <ItemsControl ItemsSource="{Binding DiscoveredGames}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border
+                                            Margin="0,4"
+                                            Padding="12,10"
+                                            Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                            CornerRadius="10">
+                                            <DockPanel>
+                                                <ui:Button
+                                                    DockPanel.Dock="Right"
+                                                    Margin="12,0,0,0"
+                                                    Style="{StaticResource BlueButton}"
+                                                    Command="{Binding DataContext.SelectDiscoveredGameForInstallCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="Configure &amp; Install"
+                                                    Icon="{ui:SymbolIcon Add24}" />
+                                                <StackPanel>
+                                                    <WrapPanel VerticalAlignment="Center">
+                                                        <TextBlock FontSize="14" FontWeight="SemiBold" Text="{Binding GameName}" />
+                                                        <TextBlock
+                                                            Margin="8,0,0,0"
+                                                            VerticalAlignment="Center"
+                                                            FontSize="11.5"
+                                                            Opacity="0.7"
+                                                            Text="{Binding PlatformDisplay, StringFormat='[{0}]'}" />
+                                                        <Border
+                                                            Margin="8,0,0,0"
+                                                            Padding="8,2"
+                                                            VerticalAlignment="Center"
+                                                            Background="{StaticResource Win11BlueBrush}"
+                                                            CornerRadius="6"
+                                                            Visibility="{Binding Badge, Converter={StaticResource StrToVis}}">
+                                                            <TextBlock
+                                                                FontSize="11"
+                                                                FontWeight="SemiBold"
+                                                                Foreground="White"
+                                                                Text="{Binding Badge}" />
+                                                        </Border>
+                                                    </WrapPanel>
+                                                    <TextBlock
+                                                        Margin="0,2,0,0"
+                                                        FontSize="11.5"
+                                                        Opacity="0.65"
+                                                        Text="{Binding ExecutablePath}"
+                                                        TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ui:CardExpander>
+
+                        <!-- INSTALLED GAMES LIST -->
+                        <TextBlock
+                            Margin="0,0,0,8"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Text="{Binding InstalledGames.Count, StringFormat='Installed Games with MFG Unlocker ({0})'}" />
+
+                        <ItemsControl ItemsSource="{Binding InstalledGames}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ui:Card Margin="0,0,0,10" Padding="16">
+                                        <DockPanel>
+                                            <WrapPanel DockPanel.Dock="Right" Margin="12,0,0,0" VerticalAlignment="Center">
+                                                <ui:Button
+                                                    Margin="0,0,6,4"
+                                                    Style="{StaticResource BlueButton}"
+                                                    Command="{Binding DataContext.UpdateSingleGameCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="Update DLL"
+                                                    Icon="{ui:SymbolIcon ArrowUp24}" />
+                                                <ui:Button
+                                                    Margin="0,0,6,4"
+                                                    Command="{Binding DataContext.ReconfigureGameInWizardCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="Change DLL / Mode"
+                                                    Icon="{ui:SymbolIcon Wrench24}" />
+                                                <ui:Button
+                                                    Margin="0,0,6,4"
+                                                    Command="{Binding DataContext.OpenGameDetailsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="Config &amp; Logs"
+                                                    Icon="{ui:SymbolIcon DocumentText24}" />
+                                                <ui:Button
+                                                    Margin="0,0,6,4"
+                                                    Command="{Binding DataContext.OpenGameFolderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Icon="{ui:SymbolIcon FolderOpen24}"
+                                                    ToolTip="Open game folder" />
+                                                <ui:Button
+                                                    Margin="0,0,0,4"
+                                                    Style="{StaticResource BlueButton}"
+                                                    Command="{Binding DataContext.UninstallGameCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="Uninstall"
+                                                    Icon="{ui:SymbolIcon Delete24}" />
+                                            </WrapPanel>
+
+                                            <StackPanel>
+                                                <WrapPanel VerticalAlignment="Center">
+                                                    <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding GameName}" />
+                                                    <TextBlock
+                                                        Margin="10,0,0,0"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="12"
+                                                        FontWeight="SemiBold"
+                                                        Opacity="0.85"
+                                                        Text="{Binding StatusText}" />
+                                                </WrapPanel>
+                                                <TextBlock
+                                                    Margin="0,3,0,2"
+                                                    FontFamily="Consolas"
+                                                    FontSize="12"
+                                                    Opacity="0.85"
+                                                    Text="{Binding ModeDisplay}" />
+                                                <TextBlock
+                                                    FontSize="11.5"
+                                                    Opacity="0.6"
+                                                    Text="{Binding ExecutablePath}"
+                                                    TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </ui:Card>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- GAME DETAILS: CONFIG & LOGS PANEL -->
+                        <ui:Card
+                            Margin="0,8,0,16"
+                            Padding="18"
+                            Visibility="{Binding IsGameDetailVisible, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <ui:Button
+                                        DockPanel.Dock="Right"
+                                        Margin="12,0,0,0"
+                                        Command="{Binding CloseGameDetailsCommand}"
+                                        Content="Close" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontSize="17"
+                                        FontWeight="SemiBold"
+                                        Text="{Binding SelectedGame.GameName, StringFormat='Configuration &amp; Diagnostics: {0}'}"
+                                        TextWrapping="Wrap" />
+                                </DockPanel>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Left Column: Settings (RTXMFG-Universal.json & RTX40MFG-UI.ini) -->
+                                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                        <TextBlock
+                                            Margin="0,0,0,8"
+                                            FontSize="14"
+                                            FontWeight="SemiBold"
+                                            Text="Quick Settings (RTXMFG-Universal.json &amp; RTX40MFG-UI.ini)" />
+
+                                        <TextBlock Margin="0,0,0,4" FontSize="12" Opacity="0.8" Text="In-Game Menu Hotkey (ToggleKey):" />
+                                        <ComboBox
+                                            Margin="0,0,0,10"
+                                            DisplayMemberPath="DisplayName"
+                                            ItemsSource="{Binding HotkeyOptions}"
+                                            SelectedItem="{Binding SelectedHotkeyOption, Mode=TwoWay}" />
+
+                                        <TextBlock Margin="0,0,0,4" FontSize="12" Opacity="0.8" Text="Menu Display Mode with OptiScaler (optiScalerUi):" />
+                                        <ComboBox
+                                            Margin="0,0,0,10"
+                                            DisplayMemberPath="DisplayName"
+                                            ItemsSource="{Binding OptiScalerUiOptions}"
+                                            SelectedItem="{Binding SelectedOptiScalerUiOption, Mode=TwoWay}" />
+
+                                        <CheckBox
+                                            Margin="0,4,0,6"
+                                            Content="Unlock in-game Frame Generation option on RTX 30 / RTX 20 (GpuNameOverride=1)"
+                                            IsChecked="{Binding ConfigGpuNameOverride, Mode=TwoWay}" />
+
+                                        <CheckBox
+                                            Margin="0,0,0,6"
+                                            Content="Enable RTX 30 Flip Metering (Rtx30FlipMetering=1)"
+                                            IsChecked="{Binding ConfigRtx30FlipMetering, Mode=TwoWay}" />
+
+                                        <CheckBox
+                                            Margin="0,0,0,10"
+                                            Content="Enable Path Traced RTX Hair on RTX 40 &amp; RTX 30 (Universal=1)"
+                                            IsChecked="{Binding ConfigEnableRtxHair, Mode=TwoWay}" />
+
+                                        <TextBlock Margin="0,4,0,4" FontSize="12" Opacity="0.8" Text="RTXMFG-Universal.json (Raw JSON):" />
+                                        <Border
+                                            Margin="0,0,0,10"
+                                            Padding="8"
+                                            Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="10">
+                                            <TextBox
+                                                Height="100"
+                                                AcceptsReturn="True"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                FontFamily="Consolas"
+                                                FontSize="12"
+                                                Text="{Binding ConfigRawUniversalJson, UpdateSourceTrigger=PropertyChanged}"
+                                                VerticalScrollBarVisibility="Auto" />
+                                        </Border>
+
+                                        <ui:Button
+                                            Style="{StaticResource BlueButton}"
+                                            Command="{Binding SaveSelectedGameConfigCommand}"
+                                            Content="Save Game Config"
+                                            Icon="{ui:SymbolIcon Save24}" />
+                                    </StackPanel>
+
+                                    <!-- Right Column: Logs & Diagnostics -->
+                                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                        <DockPanel Margin="0,0,0,8">
+                                            <WrapPanel DockPanel.Dock="Right" Margin="8,0,0,0">
+                                                <ui:Button
+                                                    Margin="0,0,6,0"
+                                                    Command="{Binding ReloadSelectedGameLogsCommand}"
+                                                    Content="Reload Log"
+                                                    Icon="{ui:SymbolIcon ArrowSync24}" />
+                                                <ui:Button
+                                                    Style="{StaticResource BlueButton}"
+                                                    Command="{Binding ExportDiagnosticsPackageCommand}"
+                                                    Content="Export Issue ZIP"
+                                                    Icon="{ui:SymbolIcon Archive24}" />
+                                            </WrapPanel>
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontSize="14"
+                                                FontWeight="SemiBold"
+                                                Text="Diagnostic Logs (RTXMFG-*.log)"
+                                                TextWrapping="Wrap" />
+                                        </DockPanel>
+
+                                        <ComboBox
+                                            Margin="0,0,0,8"
+                                            ItemsSource="{Binding SelectedGameLogs}"
+                                            SelectedItem="{Binding SelectedLogFilePath, Mode=TwoWay}" />
+
+                                        <Border
+                                            Padding="8"
+                                            Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="10">
+                                            <TextBox
+                                                Height="250"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                FontFamily="Consolas"
+                                                FontSize="11.5"
+                                                IsReadOnly="True"
+                                                Text="{Binding SelectedLogContent, Mode=OneWay}"
+                                                TextWrapping="NoWrap"
+                                                HorizontalScrollBarVisibility="Auto"
+                                                VerticalScrollBarVisibility="Auto" />
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </ui:Card>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ==================== PAGE 2: COMPATIBILITY TABLE ==================== -->
+                <Grid
+                    Grid.Row="2"
+                    Visibility="{Binding SelectedNavIndex, Converter={StaticResource NavToVis}, ConverterParameter=2}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Grid.Row="0" Margin="0,0,0,12">
+                        <ui:TextBox
+                            DockPanel.Dock="Right"
+                            Width="280"
+                            Margin="12,0,0,0"
+                            VerticalAlignment="Center"
+                            PlaceholderText="Search game title or DLL (e.g. Cyberpunk, winmm.dll)..."
+                            Text="{Binding CompatibilitySearchText, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <StackPanel>
+                            <TextBlock
+                                FontSize="24"
+                                FontWeight="SemiBold"
+                                Text="{Binding Loc.NavCompatibility}" />
+                            <TextBlock
+                                FontSize="12.5"
+                                Opacity="0.7"
+                                Text="Synchronized directly from docs/compatibility.md in dashdogy/MFG-Unlocker"
+                                TextWrapping="Wrap" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <Border
+                        Grid.Row="1"
+                        Background="{DynamicResource ControlFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        ClipToBounds="True">
+                        <DataGrid
+                            AutoGenerateColumns="False"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            CanUserAddRows="False"
+                            IsReadOnly="True"
+                            ItemsSource="{Binding FilteredCompatibilityEntries}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Width="2*" Binding="{Binding GameName}" Header="Game" />
+                                <DataGridTextColumn Width="1.2*" Binding="{Binding RawUseColumn}" Header="Recommended (Use ★)" />
+                                <DataGridTextColumn Width="1.2*" Binding="{Binding RawAlsoColumn}" Header="Also Loaded" />
+                                <DataGridTextColumn Width="2*" Binding="{Binding RawDontUseColumn}" Header="Don't Use" />
+                                <DataGridCheckBoxColumn Width="110" Binding="{Binding SupportsOptiScaler}" Header="OptiScaler" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </Grid>
+
+                <!-- ==================== PAGE 3: RELEASES & ROLLBACK ==================== -->
+                <ScrollViewer
+                    Grid.Row="2"
+                    VerticalScrollBarVisibility="Auto"
+                    Visibility="{Binding SelectedNavIndex, Converter={StaticResource NavToVis}, ConverterParameter=3}">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,14">
+                            <ui:Button
+                                DockPanel.Dock="Right"
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BlueButton}"
+                                Command="{Binding CheckForUpdatesCommand}"
+                                Content="{Binding Loc.BtnCheckUpdate}"
+                                Icon="{ui:SymbolIcon ArrowSync24}" />
+                            <StackPanel>
+                                <TextBlock
+                                    FontSize="24"
+                                    FontWeight="SemiBold"
+                                    Text="{Binding Loc.NavReleases}" />
+                                <TextBlock
+                                    FontSize="12.5"
+                                    Opacity="0.7"
+                                    Text="Download the latest release or roll back to an earlier build from GitHub"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <ItemsControl ItemsSource="{Binding AllReleases}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ui:Card Margin="0,0,0,10" Padding="16">
+                                        <DockPanel>
+                                            <ui:Button
+                                                DockPanel.Dock="Right"
+                                                Margin="12,0,0,0"
+                                                VerticalAlignment="Center"
+                                                Style="{StaticResource BlueButton}"
+                                                Command="{Binding DataContext.DownloadSpecificReleaseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Content="Download &amp; Activate (SHA-256)"
+                                                Icon="{ui:SymbolIcon ArrowDownload24}" />
+                                            <StackPanel>
+                                                <WrapPanel VerticalAlignment="Center">
+                                                    <TextBlock FontSize="17" FontWeight="Bold" Text="{Binding TagName}" />
+                                                    <TextBlock
+                                                        Margin="10,0,0,0"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="14"
+                                                        FontWeight="SemiBold"
+                                                        Text="{Binding Name}" />
+                                                </WrapPanel>
+                                                <TextBlock
+                                                    Margin="0,4,0,0"
+                                                    FontSize="12"
+                                                    Opacity="0.7"
+                                                    Text="{Binding FormattedDate, StringFormat='Published: {0}'}" />
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </ui:Card>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ==================== PAGE 4: SETTINGS ==================== -->
+                <ScrollViewer
+                    Grid.Row="2"
+                    VerticalScrollBarVisibility="Auto"
+                    Visibility="{Binding SelectedNavIndex, Converter={StaticResource NavToVis}, ConverterParameter=4}">
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,14"
+                            FontSize="24"
+                            FontWeight="SemiBold"
+                            Text="{Binding Loc.NavSettings}" />
+
+                        <ui:Card Margin="0,0,0,12" Padding="18">
+                            <StackPanel>
+                                <TextBlock FontSize="15" FontWeight="SemiBold" Text="Appearance &amp; Language" />
+                                <CheckBox
+                                    Margin="0,10,0,6"
+                                    Content="Dark Mode (Windows 11 Mica)"
+                                    IsChecked="{Binding SettingsIsDarkTheme, Mode=TwoWay}" />
+                                <CheckBox
+                                    Margin="0,4,0,4"
+                                    Content="Use Vietnamese Language (Tiếng Việt)"
+                                    IsChecked="{Binding SettingsIsVietnamese, Mode=TwoWay}" />
+                            </StackPanel>
+                        </ui:Card>
+
+                        <ui:Card Margin="0,0,0,12" Padding="18">
+                            <StackPanel>
+                                <TextBlock FontSize="15" FontWeight="SemiBold" Text="Updates &amp; GitHub API" />
+                                <CheckBox
+                                    Margin="0,10,0,10"
+                                    Content="Automatically check for new MFG Unlocker releases on startup"
+                                    IsChecked="{Binding SettingsCheckUpdatesOnStartup, Mode=TwoWay}" />
+
+                                <TextBlock
+                                    Margin="0,0,0,4"
+                                    FontSize="12"
+                                    Opacity="0.8"
+                                    Text="GitHub Personal Access Token (Optional — avoids GitHub API's 60 req/hr unauthenticated rate limit):" />
+                                <ui:TextBox
+                                    Margin="0,0,0,12"
+                                    PlaceholderText="ghp_..."
+                                    Text="{Binding SettingsGitHubToken, UpdateSourceTrigger=PropertyChanged}" />
+
+                                <ui:Button
+                                    Style="{StaticResource BlueButton}"
+                                    Command="{Binding SaveSettingsCommand}"
+                                    Content="Save Settings"
+                                    Icon="{ui:SymbolIcon Save24}" />
+                            </StackPanel>
+                        </ui:Card>
+
+                        <ui:Card Margin="0,0,0,12" Padding="18">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <ui:Button
+                                        DockPanel.Dock="Right"
+                                        Margin="12,0,0,0"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource BlueButton}"
+                                        Command="{Binding AddCustomLibraryFolderCommand}"
+                                        Content="Add Folder..."
+                                        Icon="{ui:SymbolIcon FolderAdd24}" />
+                                    <StackPanel>
+                                        <TextBlock FontSize="15" FontWeight="SemiBold" Text="Custom Game Library Folders (Standalone / Cracked / Repack Games)" TextWrapping="Wrap" />
+                                        <TextBlock
+                                            Margin="0,2,0,0"
+                                            FontSize="12"
+                                            Opacity="0.75"
+                                            Text="Add folders containing standalone, cracked, or repack games (e.g. D:\Games, E:\Repacks) for automatic scanning"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </DockPanel>
+
+                                <ItemsControl ItemsSource="{Binding CustomLibraryFolders}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border
+                                                Margin="0,3"
+                                                Padding="12,8"
+                                                Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                                CornerRadius="10">
+                                                <DockPanel>
+                                                    <ui:Button
+                                                        DockPanel.Dock="Right"
+                                                        Margin="12,0,0,0"
+                                                        Command="{Binding DataContext.RemoveCustomLibraryFolderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"
+                                                        Content="Remove"
+                                                        Icon="{ui:SymbolIcon Delete24}"
+                                                        Style="{StaticResource BlueButton}" />
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        FontFamily="Consolas"
+                                                        FontSize="12.5"
+                                                        Text="{Binding}" />
+                                                </DockPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ui:Card>
+
+                        <ui:Card Padding="18">
+                            <StackPanel>
+                                <TextBlock FontSize="15" FontWeight="SemiBold" Text="Release Asset Cache" />
+                                <TextBlock
+                                    Margin="0,6,0,12"
+                                    FontFamily="Consolas"
+                                    FontSize="12"
+                                    Opacity="0.8"
+                                    Text="{Binding CacheFolderSummary}" />
+                                <WrapPanel>
+                                    <ui:Button
+                                        Margin="0,0,8,0"
+                                        Command="{Binding OpenCacheDirectoryCommand}"
+                                        Content="Open Cache Folder"
+                                        Icon="{ui:SymbolIcon FolderOpen24}" />
+                                    <ui:Button
+                                        Style="{StaticResource BlueButton}"
+                                        Command="{Binding ClearCacheCommand}"
+                                        Content="Clear All Cache"
+                                        Icon="{ui:SymbolIcon Delete24}" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </ui:Card>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</ui:FluentWindow>
